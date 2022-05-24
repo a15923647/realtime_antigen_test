@@ -1,0 +1,63 @@
+<html>
+  <head>
+  </head>
+  <body>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://unpkg.com/bootstrap-table@1.16.0/dist/bootstrap-table.min.css">
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/bootstrap-table@1.16.0/dist/bootstrap-table.min.js"></script>
+    <script>
+      function createTable(tableData) {
+        var table = document.createElement('table');
+        table.setAttribute('id', 't1')
+        var tableBody = document.createElement('tbody');
+
+        tableData.forEach(function(rowData) {
+          var row = document.createElement('tr');
+
+          rowData.forEach(function(cellData) {
+            var cell = document.createElement('td');
+            cell.appendChild(document.createTextNode(cellData));
+            row.appendChild(cell);
+          });
+
+          tableBody.appendChild(row);
+        });
+
+        table.appendChild(tableBody);
+        document.body.appendChild(table);
+        $('table').bootstrapTable();
+      }
+    </script>
+    <script type="text/javascript">
+      function fetch_data(req_data) {
+        console.log("call  fetch_data");
+        la = req_data.latitude;
+        lng = req_data.longitude;
+        axios.get('http://nycu.cslife.cf:9999', { params: { latitude: la, longitude: lng } })
+        .then(function (response) {
+          console.log(response);
+          createTable(response.data)
+        })
+        .catch(function (error) {console.log(error)})
+        .finally(function () {console.log("Executed.")})
+      }
+      function success_postition_f(position) {
+        console.log(position.coords);
+        fetch_data(position.coords);
+      }
+      function fail_position_f(error) {
+        console.log(error);
+      }
+      function send_geo_pos() {
+        navigator.geolocation.getCurrentPosition(success_postition_f, fail_position_f);
+      }
+      window.onload = send_geo_pos();
+    </script>
+    <h1 class=result>COVID-19 鄰近快篩購買處</h1>
+  </body>
+</html>
