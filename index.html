@@ -38,7 +38,7 @@
         console.log("call  fetch_data");
         la = req_data.latitude;
         lng = req_data.longitude;
-        axios.get('http://nycu.cslife.cf:9999', { params: { latitude: la, longitude: lng } })
+        axios.get('https://nycu.cslife.cf:9999', { params: { latitude: la, longitude: lng } })
         .then(function (response) {
           console.log(response);
           createTable(response.data)
@@ -59,5 +59,6 @@
       window.onload = send_geo_pos();
     </script>
     <h1 class=result>COVID-19 鄰近快篩購買處</h1>
+    <h2>為了計算正確距離，需要等待10幾秒</h2>
   </body>
 </html>
