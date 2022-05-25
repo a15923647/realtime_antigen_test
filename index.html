@@ -13,11 +13,20 @@
     <script>
       function createTable(tableData) {
         var table = document.createElement('table');
-        table.setAttribute('id', 't1')
+        table.setAttribute('id', 't1');
         var tableBody = document.createElement('tbody');
+        var attrs = document.createElement('tr');
+        tableData[0].forEach(function(cellData) {
+          var cell = document.createElement('td');
+          cell.appendChild(document.createTextNode(cellData));
+          attrs.appendChild(cell);
+        });
+        tableBody.appendChild(attrs);
 
-        tableData.forEach(function(rowData) {
+        tableData.slice(1).forEach(function(rowData) {
           var row = document.createElement('tr');
+          row.setAttribute('class', 'phar');
+          row.setAttribute('onclick', `window.open('https://www.google.com/maps/search/?api=1&query="${rowData[2]}"');`);
 
           rowData.forEach(function(cellData) {
             var cell = document.createElement('td');
