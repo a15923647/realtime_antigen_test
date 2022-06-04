@@ -105,12 +105,24 @@ function markerOnClick(e) {
   console.log(e);
 }
 
+function remove_store(store_code) {
+  console.log('remove ', store_code);
+  map.removeLayer(markers[store_code]);
+  document.querySelector(`#tr_${store_code}`).remove();
+}
+
 //const dir_tag_text = 'direction in Google map.';//'在Google地圖中導航';
 const dir_tag_text = '在Google地圖中導航';
 var markers = {};
 function add_store_marker(store, store_stock_data) {
-  //console.log(store_stock_data);
-  stock = store_stock_data.stock;
+  //console.log('in add store marker: ', store_stock_data);
+  if (!store_stock_data) {
+    store_stock_data = new Object();
+    store_stock_data.stock = -1;
+    store_stock_data.time = 'unknown';
+    store_stock_data.memo = 'unknown';
+  }
+  stock = (store_stock_data.stock || -1);
   let icon;
   if (stock > 58) icon = greenIcon;
   else if (stock >= 39) icon = yellowIcon;
@@ -130,9 +142,12 @@ function add_store_marker(store, store_stock_data) {
         ${store_stock_data.memo}
       </p>
     </div>
-    <div onclick=window.open('https://www.google.com.tw/maps/dir/${cur_la},${cur_ln}/${store.name}+${store.addr}/@${store.la},${store.ln},14.75z')>${dir_tag_text}</div>`
+    <div onclick=window.open('https://www.google.com.tw/maps/dir/${cur_la},${cur_ln}/${store.name}+${store.addr}/@${store.la},${store.ln},14.75z')>${dir_tag_text}</div>
+    <button onclick="remove_store(${store.code});">移除釘選</button>
+    `
   marker.bindPopup(popup_content);//.openPopup();
   markers[store.code] = marker;
+  return marker;
 }
 
 
@@ -151,19 +166,13 @@ function pin_sites(data) {
   let stores_code = data.map(x=>x.code);
   axios.get('https://nycu.cslife.cf:9999/get_stocks', {params: {stores_code: JSON.stringify(stores_code)}})
     .then(function (response) {
+      document.querySelector('.bs_spinner_container').style.zIndex=99;
       stores_stock_data = response.data;
-      //console.log(stores_stock_data);
+      data.forEach(function(store) {
+        add_store_marker(store, stores_stock_data[store.code] || {});
+      });
+      setTimeout(() => document.querySelector('.bs_spinner_container').style.zIndex=0);
     });
-  //for each store, get stock
-  data.forEach(function(store) {
-    axios.get('https://nycu.cslife.cf:9999/get_stock', {params: {store_code: store.code}})
-      .then(function (response) {
-        let store_stock_data = response.data;
-        //console.log(store_stock_data);
-        add_store_marker(store, store_stock_data);
-      })
-      .catch(function (error) {console.log(error);});
-  });
 }
 
 function createTable(content, header=[], selector='body', row_attrs={}, indv_row_attrs={}) {
@@ -210,12 +219,16 @@ function createTable(content, header=[], selector='body', row_attrs={}, indv_row
 
 function tr_onclick(store_code) {
   let marker = markers[store_code];
-  map.flyTo(marker.getLatLng());
+  map.flyTo(marker.getLatLng(), 13);
   marker.openPopup();
 }
 
 var stores_info;
 var real_dists = {};
+var real_d_content = [];
+var real_d_header;
+var real_d_selector;
+var real_d_indv_row_attrs;
 function adj_process(response) {
   stores_info = response.data;
   pin_sites(stores_info); //get stores_stock_data
@@ -224,7 +237,10 @@ function adj_process(response) {
   //indv_row_attrs: onclick click_row_function
   header = ['醫事機構名稱', '實際距離 (公尺)'];
   selector = "#list_wrapper";
-  indv_row_attrs = {'onclick': stores_info.map(s => `tr_onclick('${s.code}');`)};
+  indv_row_attrs = {
+    'onclick': stores_info.map(s => `tr_onclick('${s.code}');`),
+    'id': stores_info.map(s => `tr_${s.code}`)
+  };
   content = [];//name, real_dist
   let dist_promieses = [];
   //get real dists
@@ -236,17 +252,23 @@ function adj_process(response) {
   Promise.all(dist_promieses).then(function (foo) {
     stores_info.forEach(s=>{content.push([s.name, real_dists[s.code]])});
     content.sort((a, b) => a[1]-b[1]);
+    real_d_content = content;
+    real_d_header = header;
+    real_d_selector = selector;
+    real_d_indv_row_attrs = indv_row_attrs;
     createTable(content, header=header, selector=selector, row_attrs={}, indv_row_attrs=indv_row_attrs);
   });
 }
 
 var cur_la;
 var cur_ln;
+var limit = 30;
+var hdist = 10;
 function fetch_data(req_data) {
   cur_la = req_data.coords.latitude;
   cur_ln = req_data.coords.longitude;
   //console.log(req_data);
-  axios.get('https://nycu.cslife.cf:9999/adj_store_data', { params: {latitude: cur_la, longitude: cur_ln, limit: 30, hdist: 10}})
+  axios.get('https://nycu.cslife.cf:9999/adj_store_data', { params: {latitude: cur_la, longitude: cur_ln, limit: limit, hdist: hdist}})
     .then(adj_process)
     .catch(function (error) {console.log(error);});
 }
@@ -255,4 +277,4 @@ function geo_callback(geo_data) {
   create_map(geo_data.coords.latitude, geo_data.coords.longitude);
   var data = fetch_data(geo_data);
 }
-navigator.geolocation.getCurrentPosition(geo_callback);
+window.onload = () => navigator.geolocation.getCurrentPosition(geo_callback);
