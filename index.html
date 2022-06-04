@@ -1,55 +1,65 @@
-<meta charset="UTF-8">
-<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://unpkg.com/bootstrap-table@1.16.0/dist/bootstrap-table.min.css">
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.3.4/dist/leaflet.css" integrity="sha512-puBpdR0798OZvTTbP4A8Ix/l+A4dHDD0DGqYW6RQ+9jxkRFclaxxQb/SJAWZfWAkuyeQUytO7+7N4QKrDh+drA==" crossorigin=""/>
-<style>
-    html, body{
-        width: 100%;
-        height: 100%;
-    }
-    #map{
-        width: 100%;
-        height: 100%;
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>快篩地圖</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://unpkg.com/bootstrap-table@1.16.0/dist/bootstrap-table.min.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.3.4/dist/leaflet.css" integrity="sha512-puBpdR0798OZvTTbP4A8Ix/l+A4dHDD0DGqYW6RQ+9jxkRFclaxxQb/SJAWZfWAkuyeQUytO7+7N4QKrDh+drA==" crossorigin=""/>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.2.0/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.css" />
+  <style>
+      html, body{
+          width: 100%;
+          height: 100%;
+      }
+      #map{
+          width: 100%;
+          height: 100%;
+          display: block;
+          float: left;
+          z-index: 0;
+      }
+      #list_wrapper {
         display: block;
-        float: left;
-        z-index: 0;
-    }
-    #list_wrapper {
-      display: block;
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      height: 33%;
-      background: #fff;
-      box-shadow: 0 1px 5px rgb(0 0 0 / 65%);
-      border-radius: 4px;
-      z-index: 1;
-    }
-</style>
-<div id="map"></div>
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.2.0/dist/leaflet.css" />
-<link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.css" />
-<script src="https://unpkg.com/leaflet@1.2.0/dist/leaflet.js"></script>
-<script src="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js" integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k" crossorigin="anonymous"></script>
-<script src="https://unpkg.com/bootstrap-table@1.16.0/dist/bootstrap-table.min.js"></script>
-<script src="app.js"></script>
-<div id="list_wrapper">
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        height: 33%;
+        background: #fff;
+        box-shadow: 0 1px 5px rgb(0 0 0 / 65%);
+        border-radius: 4px;
+        z-index: 1;
+      }
+      .bt_modal {
+        z-index: 2;
+      }
+  </style>
+  <script src="https://unpkg.com/leaflet@1.2.0/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js" integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/bootstrap-table@1.16.0/dist/bootstrap-table.min.js"></script>
+</head>
+<body>
+  <div id="map"></div>
+  <script src="app.js"></script>
+  <div id="list_wrapper">
 
-</div>
-<div class="modal fade" id="detailModal">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h3 id="modal_org_name">醫事機構名稱</h3>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body">
-      </div>
-      <div class="modal-footer">
+  </div>
+  <div class="modal fade bt_modal" id="detailModal">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 id="modal_org_name">醫事機構名稱</h3>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+        </div>
+        <div class="modal-footer">
+        </div>
       </div>
     </div>
   </div>
-</div>
+</body>
+</html>
