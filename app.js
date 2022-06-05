@@ -91,10 +91,23 @@ function create_map(la=24.7854333, ln=120.999092) {
   }).addTo(map);
 }
 
-function add_marker(la, ln) {
+function add_marker(la, ln, icon=null, title=null, bind_title=null, bindTooltip=null, open_tooltip=false) {
   var marker;
-  marker = L.marker([la, ln]);
+  marker_options = new Object();
+  if (icon) marker_options.icon = icon;
+  if (title) marker_options.title = title;
+  marker = L.marker([la, ln], marker_options);
   marker.addTo(map);
+  var tt;
+  if (bind_title) tt = marker.bindTooltip(bind_title, bindTooltip);
+  if (open_tooltip) tt.openTooltip();
+  return marker;
+}
+
+var pos_marker;
+function add_pos_marker(la, ln, icon) {
+  pos_marker = L.marker([la, ln], {icon: icon});
+  pos_marker.addTo(map);
 }
 
 function change_modal_content(code) {
@@ -260,21 +273,25 @@ function adj_process(response) {
   });
 }
 
-var cur_la;
-var cur_ln;
 var limit = 30;
 var hdist = 10;
 function fetch_data(req_data) {
-  cur_la = req_data.coords.latitude;
-  cur_ln = req_data.coords.longitude;
+  let la = req_data.coords.latitude;
+  let ln = req_data.coords.longitude;
   //console.log(req_data);
-  axios.get('https://nycu.cslife.cf:9999/adj_store_data', { params: {latitude: cur_la, longitude: cur_ln, limit: limit, hdist: hdist}})
+  axios.get('https://nycu.cslife.cf:9999/adj_store_data', { params: {latitude: la, longitude: ln, limit: limit, hdist: hdist}})
     .then(adj_process)
     .catch(function (error) {console.log(error);});
 }
 
+var cur_la;
+var cur_ln;
+var cur_marker;
 function geo_callback(geo_data) {
-  create_map(geo_data.coords.latitude, geo_data.coords.longitude);
+  cur_la = geo_data.coords.latitude;
+  cur_ln = geo_data.coords.longitude;
+  create_map(cur_la, cur_ln);
+  cur_marker = add_marker(cur_la, cur_ln, icon=blueIcon, title="現在位置", bind_title="現在位置", bindTooltip={permanent: true, direction: 'bottom'}, open_tooltip=true);
   var data = fetch_data(geo_data);
 }
 window.onload = () => navigator.geolocation.getCurrentPosition(geo_callback);
