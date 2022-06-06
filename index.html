@@ -30,6 +30,15 @@
         border-radius: 4px;
         z-index: 2;
       }
+      #fly_back_btn {
+        display: block;
+        position: absolute;
+        right: 10px;
+        bottom: 10px;
+        background: #fff;
+        border-radius: 4px;
+        z-index: 2;
+      }
       .bt_modal {
         z-index: 3;
       }
@@ -74,6 +83,7 @@
   <div id="list_wrapper">
 
   </div>
+  <button onclick="flyBack();" id="fly_back_btn">回到原位</button>
   <div class="modal fade bt_modal" id="detailModal">
     <div class="modal-dialog">
       <div class="modal-content">

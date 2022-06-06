@@ -232,7 +232,7 @@ function createTable(content, header=[], selector='body', row_attrs={}, indv_row
 
 function tr_onclick(store_code) {
   let marker = markers[store_code];
-  map.flyTo(marker.getLatLng(), 13);
+  map.flyTo(marker.getLatLng(), 17);
   marker.openPopup();
 }
 
@@ -276,24 +276,10 @@ function adj_process(response) {
       real_d_indv_row_attrs = indv_row_attrs;
       createTable(content, header=header, selector=selector, row_attrs={}, indv_row_attrs=indv_row_attrs);
     });
-  /*
-  let dist_promieses = [];
-  //get real dists
-  stores_info.forEach(function(store) {
-    dist_promieses.push(get_real_dist(cur_la, cur_ln, store.la, store.ln)
-      .then(response => {real_dists[store.code] = response.data; console.log(store.code, response.data);}));
-  });
-  //until getting all real dist, create table.
-  Promise.all(dist_promieses).then(function (foo) {
-    stores_info.forEach(s=>{content.push([s.name, real_dists[s.code]])});
-    content.sort((a, b) => a[1]-b[1]);
-    real_d_content = content;
-    real_d_header = header;
-    real_d_selector = selector;
-    real_d_indv_row_attrs = indv_row_attrs;
-    createTable(content, header=header, selector=selector, row_attrs={}, indv_row_attrs=indv_row_attrs);
-  });
-  */
+}
+
+function flyBack() {
+  map.flyTo([cur_la, cur_ln], 14);
 }
 
 var limit = 400;
@@ -317,4 +303,4 @@ function geo_callback(geo_data) {
   cur_marker = add_marker(cur_la, cur_ln, icon=blueIcon, title="現在位置", bind_title="現在位置", bindTooltip={permanent: true, direction: 'bottom'}, open_tooltip=true);
   var data = fetch_data(geo_data);
 }
-window.onload = () => navigator.geolocation.getCurrentPosition(geo_callback);
+window.onload = navigator.geolocation.getCurrentPosition(geo_callback);
