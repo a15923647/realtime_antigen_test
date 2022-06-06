@@ -250,11 +250,33 @@ function adj_process(response) {
   //indv_row_attrs: onclick click_row_function
   header = ['醫事機構名稱', '實際距離 (公尺)'];
   selector = "#list_wrapper";
-  indv_row_attrs = {
-    'onclick': stores_info.map(s => `tr_onclick('${s.code}');`),
-    'id': stores_info.map(s => `tr_${s.code}`)
-  };
+  
   content = [];//name, real_dist
+  let osrm_url = `https://nycu.cslife.cf:9999/get_real_dists`;
+  let store_coords = stores_info.map(s => [s.la, s.ln]);
+  axios.get(osrm_url, {params: {s_la: cur_la, s_ln: cur_ln, dsts: JSON.stringify(store_coords)}})
+    .then(function(response) {
+      let data = response.data;
+      for (let i = 0; i < store_coords.length; i++) {
+        real_dists[stores_info[i].code] = data[i];
+        console.log(stores_info[i].code, data[i]);
+      }
+      let zipped_content = [];
+      stores_info.forEach(s=>{zipped_content.push([s.code, s.name, real_dists[s.code]])});
+      zipped_content.sort((a, b) => a[2]-b[2]);
+      sorted_codes = zipped_content.map(x => x[0]);
+      content = zipped_content.map(x => [x[1], x[2]]);
+      real_d_content = content;
+      indv_row_attrs = {
+        'onclick': sorted_codes.map(s => `tr_onclick('${s}');`),
+        'id': sorted_codes.map(s => `tr_${s}`)
+      };
+      real_d_header = header;
+      real_d_selector = selector;
+      real_d_indv_row_attrs = indv_row_attrs;
+      createTable(content, header=header, selector=selector, row_attrs={}, indv_row_attrs=indv_row_attrs);
+    });
+  /*
   let dist_promieses = [];
   //get real dists
   stores_info.forEach(function(store) {
@@ -271,10 +293,11 @@ function adj_process(response) {
     real_d_indv_row_attrs = indv_row_attrs;
     createTable(content, header=header, selector=selector, row_attrs={}, indv_row_attrs=indv_row_attrs);
   });
+  */
 }
 
-var limit = 30;
-var hdist = 10;
+var limit = 400;
+var hdist = 300;
 function fetch_data(req_data) {
   let la = req_data.coords.latitude;
   let ln = req_data.coords.longitude;
