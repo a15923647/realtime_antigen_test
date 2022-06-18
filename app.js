@@ -110,8 +110,8 @@ function add_pos_marker(la, ln, icon) {
   pos_marker.addTo(map);
 }
 
-function change_modal_content(code) {
-
+function show_modal() {
+  
 }
 
 function markerOnClick(e) {
@@ -156,6 +156,7 @@ function add_store_marker(store, store_stock_data) {
       </p>
     </div>
     <div onclick=window.open('https://www.google.com.tw/maps/dir/${cur_la},${cur_ln}/${store.name}+${store.addr}/@${store.la},${store.ln},14.75z')>${dir_tag_text}</div>
+    <button onclick="show_history(${store.code});" data-bs-toggle="modal" data-bs-target="#historyModal">顯示趨勢圖</button>
     <button onclick="remove_store(${store.code});">移除釘選</button>
     `
   marker.bindPopup(popup_content);//.openPopup();
@@ -179,12 +180,65 @@ function pin_sites(data) {
   let stores_code = data.map(x=>x.code);
   axios.get('https://nycu.cslife.cf:9999/get_stocks', {params: {stores_code: JSON.stringify(stores_code)}})
     .then(function (response) {
-      document.querySelector('.bs_spinner_container').style.zIndex=99;
+      //document.querySelector('.bs_spinner_container').style.zIndex=99;
+      document.querySelector('.bs_spinner_container').style.display="block";
       stores_stock_data = response.data;
       data.forEach(function(store) {
         add_store_marker(store, stores_stock_data[store.code] || {});
       });
-      setTimeout(() => document.querySelector('.bs_spinner_container').style.zIndex=0);
+      //setTimeout(() => document.querySelector('.bs_spinner_container').style.zIndex=0);
+      setTimeout(() => document.querySelector('.bs_spinner_container').style.display="none");
+    });
+}
+
+function render_chart(data) {
+  console.log(`data: ${data}`);
+  var canvas = document.getElementById('chartCanvas');
+  var container = document.getElementById('chartContainer');
+  canvas.remove();
+  var new_canvas = document.createElement('canvas');
+  new_canvas.setAttribute('id', 'chartCanvas');
+  new_canvas.setAttribute('width', "400");
+  new_canvas.setAttribute('height', "400");
+  container.appendChild(new_canvas);
+  canvas = new_canvas;
+  console.log(canvas);
+  var ctx = canvas.getContext('2d');
+  data_arr = data.map(x=>parseInt(x[0], 10));
+  labels = data.map(x=>x[1]);
+  console.log(labels);
+  console.log(data_arr);
+  var chart_config = {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: '快篩數量',
+        data: data_arr,
+        fill: false,
+        borderColor: 'rgb(75, 192, 192)',
+        tension: 0.1
+      }]
+    }
+  };
+  var chart = new Chart(ctx, chart_config);
+  console.log(chart);
+  console.log(chart_config);
+}
+
+interval_strings = ['7 days', '3 days', '1 day', '1 hour']
+var last_access_history_code = "";
+function show_history(store_code) {
+  document.querySelector('.bs_spinner_container').style.display="block";
+  last_access_history_code = store_code;
+  //axios.get('https://nycu.cslife.cf:9999/get_point_history', {params: {store_code: store_code}})
+  axios.get('https://nycu.cslife.cf:9999/get_interval_history', {params: {store_code: store_code, interval: interval_strings[ document.querySelector("#interval_select").selectedIndex ]}})
+    .then(function(response) {
+      console.log(`show history of ${store_code2info[store_code].name}`);
+      render_chart(response.data);
+      $('#historyModal').modal("show");
+      document.getElementById('modal_org_name').innerHTML = store_code2info[store_code].name;
+      document.querySelector('.bs_spinner_container').style.display="none";
     });
 }
 
@@ -236,7 +290,8 @@ function tr_onclick(store_code) {
   marker.openPopup();
 }
 
-var stores_info;
+var stores_info = {};
+var store_code2info = {};
 var real_dists = {};
 var real_d_content = [];
 var real_d_header;
@@ -244,6 +299,9 @@ var real_d_selector;
 var real_d_indv_row_attrs;
 function adj_process(response) {
   stores_info = response.data;
+  stores_info.forEach(function(store) {
+    store_code2info[store.code] = store;
+  });
   pin_sites(stores_info); //get stores_stock_data
   //header: name dist
   //selector: .list_wrapper

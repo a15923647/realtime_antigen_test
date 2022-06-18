@@ -39,9 +39,6 @@
         border-radius: 4px;
         z-index: 2;
       }
-      .bt_modal {
-        z-index: 3;
-      }
 			.center { 
         position: absolute;
         top: 50%;
@@ -53,7 +50,8 @@
         transform: translateY(-50%);
       }
       .bs_spinner_container {
-        z-index: 4;
+        z-index: 999;
+        display: block;
         position: absolute;
         top: 50%;
         left: 50%;
@@ -63,7 +61,24 @@
         -ms-transform: translateY(-50%);
         transform: translateY(-50%);
       }
-      
+      /*
+      #chartCanvas {
+        width: 400px;
+        height: 400px;
+        display: block;
+      }
+      .modal-header h3 {
+        font-size: 30px;
+        color: blue;
+        position: absolute;
+        top: 7%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+      }
+      .modal-content {
+        background-color: burlywood;
+      }
+      */
   </style>
   <script src="https://unpkg.com/leaflet@1.2.0/dist/leaflet.js"></script>
   <script src="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.js"></script>
@@ -71,6 +86,7 @@
   <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js" integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k" crossorigin="anonymous"></script>
   <script src="https://unpkg.com/bootstrap-table@1.16.0/dist/bootstrap-table.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@3.8.0/dist/chart.min.js"></script>
 </head>
 <body>
   <div class="bs_spinner_container">
@@ -84,16 +100,27 @@
 
   </div>
   <button onclick="flyBack();" id="fly_back_btn">回到原位</button>
-  <div class="modal fade bt_modal" id="detailModal">
-    <div class="modal-dialog">
+  <div class="modal fade bt_modal" id="historyModal">
+    <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
         <div class="modal-header">
+          <!-- control name by js -->
           <h3 id="modal_org_name">醫事機構名稱</h3>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close">X</button>
         </div>
         <div class="modal-body">
+          <div id="chartContainer">
+            <canvas id="chartCanvas"></canvas>
+          </div>
         </div>
         <div class="modal-footer">
+          <select id="interval_select">
+            <option value="7 days">7天</option>
+            <option value="3 days">3天</option>
+            <option value="1 day">1天</option>
+            <option value="1 hour">1小時</option>
+          </select>
+          <button id="interval_btn" onclick="show_history(last_access_history_code);">確定</button>
         </div>
       </div>
     </div>
