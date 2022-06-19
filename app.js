@@ -164,15 +164,6 @@ function add_store_marker(store, store_stock_data) {
   return marker;
 }
 
-
-function get_real_dist(s_la, s_ln, f_la, f_ln) {
-  //let osrm_url = `https://router.project-osrm.org/route/v1/foot/${s_ln},${s_la};${f_ln},${f_la}?overview=false`;
-  let osrm_url = `https://nycu.cslife.cf:9999/get_real_dist`;
-  return axios.get(osrm_url, {params: {s_la: s_la, s_ln: s_ln, f_la: f_la, f_ln: f_ln}});
-}
-
-
-
 var stores_stock_data;
 var tmp;
 function pin_sites(data) {
@@ -191,7 +182,7 @@ function pin_sites(data) {
     });
 }
 
-function render_chart(data) {
+function render_chart(data, label='快篩數量') {
   console.log(`data: ${data}`);
   var canvas = document.getElementById('chartCanvas');
   var container = document.getElementById('chartContainer');
@@ -213,7 +204,7 @@ function render_chart(data) {
     data: {
       labels: labels,
       datasets: [{
-        label: '快篩數量',
+        label: label,
         data: data_arr,
         fill: false,
         borderColor: 'rgb(75, 192, 192)',
@@ -231,11 +222,11 @@ var last_access_history_code = "";
 function show_history(store_code) {
   document.querySelector('.bs_spinner_container').style.display="block";
   last_access_history_code = store_code;
-  //axios.get('https://nycu.cslife.cf:9999/get_point_history', {params: {store_code: store_code}})
   axios.get('https://nycu.cslife.cf:9999/get_interval_history', {params: {store_code: store_code, interval: interval_strings[ document.querySelector("#interval_select").selectedIndex ]}})
     .then(function(response) {
       console.log(`show history of ${store_code2info[store_code].name}`);
-      render_chart(response.data);
+      chart_data = response.data.map(x=>[x[0], x[1].replace(/^([0-9]{4})-/, x=>"")]);
+      render_chart(chart_data);
       $('#historyModal').modal("show");
       document.getElementById('modal_org_name').innerHTML = store_code2info[store_code].name;
       document.querySelector('.bs_spinner_container').style.display="none";
