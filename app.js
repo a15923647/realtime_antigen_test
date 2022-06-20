@@ -124,6 +124,16 @@ function remove_store(store_code) {
   document.querySelector(`#tr_${store_code}`).remove();
 }
 
+function select_proper_icon(stock) {
+  let icon;
+  if (stock > 58) icon = greenIcon;
+  else if (stock >= 39) icon = yellowIcon;
+  else if (stock >= 20) icon = goldIcon;
+  else if (stock > 0) icon = redIcon;
+  else icon = greyIcon;
+  return icon;
+}
+
 //const dir_tag_text = 'direction in Google map.';//'在Google地圖中導航';
 const dir_tag_text = '在Google地圖中導航';
 var markers = {};
@@ -136,21 +146,23 @@ function add_store_marker(store, store_stock_data) {
     store_stock_data.memo = 'unknown';
   }
   stock = (store_stock_data.stock || -1);
-  let icon;
+  let icon = select_proper_icon(stock);
+  /*
   if (stock > 58) icon = greenIcon;
   else if (stock >= 39) icon = yellowIcon;
   else if (stock >= 20) icon = goldIcon;
   else if (stock > 0) icon = redIcon;
   else icon = greyIcon;
+  */
   //console.log(stock, icon);
   var marker = L.marker([store.la, store.ln], {
     icon: icon,
     title: store.name
-  }).addTo(map);
-  let popup_content = `<h5>${store.name}</h5><div>存貨: ${store_stock_data.stock}</div>
-    <div>更新時間: ${store_stock_data.time}</div>
+  }).addTo(map).on('click', ( () => update_marker(store.code) ));
+  let popup_content = `<h5>${store.name}</h5><div id="stock_tag_${store.code}">存貨: ${store_stock_data.stock}</div>
+    <div id="update_time_${store.code}">更新時間: ${store_stock_data.time}</div>
     <div>
-      <p>
+      <p id="memo_para_${store.code}">
       備註:
         ${store_stock_data.memo}
       </p>
@@ -164,11 +176,38 @@ function add_store_marker(store, store_stock_data) {
   return marker;
 }
 
+var tmp;
+function update_marker(store_code) {
+  console.log("update marker");
+  axios.get('https://nycu.cslife.cf:9999/get_stocks', {params: {stores_code: JSON.stringify([store_code])}})
+    .then(function (response) {
+      tmp = response.data;//tmp
+      store = store_code2info[store_code]
+      store_stock_data = response.data[store.code];
+      stock = (store_stock_data.stock || -1);
+      let icon = select_proper_icon(stock);
+      markers[store.code].setIcon(icon);
+      markers[store.code]._popup.setContent(`<h5>${store.name}</h5><div id="stock_tag_${store.code}">存貨: ${store_stock_data.stock}</div>
+          <div id="update_time_${store.code}">更新時間: ${store_stock_data.time}</div>
+          <div>
+            <p id="memo_para_${store.code}">
+            備註:
+              ${store_stock_data.memo}
+            </p>
+          </div>
+          <div onclick=window.open('https://www.google.com.tw/maps/dir/${cur_la},${cur_ln}/${store.name}+${store.addr}/@${store.la},${store.ln},14.75z')>${dir_tag_text}</div>
+          <button onclick="show_history(${store.code});" data-bs-toggle="modal" data-bs-target="#historyModal">顯示趨勢圖</button>
+          <button onclick="remove_store(${store.code});">移除釘選</button>
+        `);
+    });
+}
+
 var stores_stock_data;
 var tmp;
+var stores_code;
 function pin_sites(data) {
   //all stores stock
-  let stores_code = data.map(x=>x.code);
+  stores_code = data.map(x=>x.code);
   axios.get('https://nycu.cslife.cf:9999/get_stocks', {params: {stores_code: JSON.stringify(stores_code)}})
     .then(function (response) {
       //document.querySelector('.bs_spinner_container').style.zIndex=99;
@@ -183,7 +222,6 @@ function pin_sites(data) {
 }
 
 function render_chart(data, label='快篩數量') {
-  console.log(`data: ${data}`);
   var canvas = document.getElementById('chartCanvas');
   var container = document.getElementById('chartContainer');
   canvas.remove();
@@ -193,12 +231,9 @@ function render_chart(data, label='快篩數量') {
   new_canvas.setAttribute('height', "400");
   container.appendChild(new_canvas);
   canvas = new_canvas;
-  console.log(canvas);
   var ctx = canvas.getContext('2d');
   data_arr = data.map(x=>parseInt(x[0], 10));
   labels = data.map(x=>x[1]);
-  console.log(labels);
-  console.log(data_arr);
   var chart_config = {
     type: 'line',
     data: {
@@ -213,8 +248,6 @@ function render_chart(data, label='快篩數量') {
     }
   };
   var chart = new Chart(ctx, chart_config);
-  console.log(chart);
-  console.log(chart_config);
 }
 
 interval_strings = ['7 days', '3 days', '1 day', '1 hour']
@@ -270,7 +303,6 @@ function createTable(content, header=[], selector='body', row_attrs={}, indv_row
   }
   //});
   table.appendChild(tableBody);
-  console.log(document.querySelector(selector));
   document.querySelector(selector).appendChild(table);
   $('.bs_table').bootstrapTable();
 }
@@ -308,7 +340,7 @@ function adj_process(response) {
       let data = response.data;
       for (let i = 0; i < store_coords.length; i++) {
         real_dists[stores_info[i].code] = data[i];
-        console.log(stores_info[i].code, data[i]);
+        //console.log(stores_info[i].code, data[i]);
       }
       let zipped_content = [];
       stores_info.forEach(s=>{zipped_content.push([s.code, s.name, real_dists[s.code]])});
@@ -352,4 +384,13 @@ function geo_callback(geo_data) {
   cur_marker = add_marker(cur_la, cur_ln, icon=blueIcon, title="現在位置", bind_title="現在位置", bindTooltip={permanent: true, direction: 'bottom'}, open_tooltip=true);
   var data = fetch_data(geo_data);
 }
+
+function change_cur_pos_marker(loc_data) {
+  const card = loc_data.coords;
+  cur_la = card.latitude;
+  cur_ln = card.longitude;
+  var new_LatLng = new L.LatLng(cur_la, cur_ln);
+  cur_marker.setLatLng(new_LatLng);
+}
 window.onload = navigator.geolocation.getCurrentPosition(geo_callback);
+navigator.geolocation.watchPosition(change_cur_pos_marker);
