@@ -1,4 +1,4 @@
-var blueIcon = new L.Icon({
+let blueIcon = new L.Icon({
 	iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png',
 	shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
 	iconSize: [25, 41],
@@ -7,7 +7,7 @@ var blueIcon = new L.Icon({
 	shadowSize: [41, 41]
 });
 
-var goldIcon = new L.Icon({
+let goldIcon = new L.Icon({
 	iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-gold.png',
 	shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
 	iconSize: [25, 41],
@@ -16,7 +16,7 @@ var goldIcon = new L.Icon({
 	shadowSize: [41, 41]
 });
 
-var redIcon = new L.Icon({
+let redIcon = new L.Icon({
 	iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
 	shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
 	iconSize: [25, 41],
@@ -25,7 +25,7 @@ var redIcon = new L.Icon({
 	shadowSize: [41, 41]
 });
 
-var greenIcon = new L.Icon({
+let greenIcon = new L.Icon({
 	iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png',
 	shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
 	iconSize: [25, 41],
@@ -34,7 +34,7 @@ var greenIcon = new L.Icon({
 	shadowSize: [41, 41]
 });
 
-var orangeIcon = new L.Icon({
+let orangeIcon = new L.Icon({
 	iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-orange.png',
 	shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
 	iconSize: [25, 41],
@@ -43,7 +43,7 @@ var orangeIcon = new L.Icon({
 	shadowSize: [41, 41]
 });
 
-var yellowIcon = new L.Icon({
+let yellowIcon = new L.Icon({
 	iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-yellow.png',
 	shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
 	iconSize: [25, 41],
@@ -52,7 +52,7 @@ var yellowIcon = new L.Icon({
 	shadowSize: [41, 41]
 });
 
-var violetIcon = new L.Icon({
+let violetIcon = new L.Icon({
 	iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-violet.png',
 	shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
 	iconSize: [25, 41],
@@ -61,7 +61,7 @@ var violetIcon = new L.Icon({
 	shadowSize: [41, 41]
 });
 
-var greyIcon = new L.Icon({
+let greyIcon = new L.Icon({
 	iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-grey.png',
 	shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
 	iconSize: [25, 41],
@@ -70,7 +70,7 @@ var greyIcon = new L.Icon({
 	shadowSize: [41, 41]
 });
 
-var blackIcon = new L.Icon({
+let blackIcon = new L.Icon({
 	iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-black.png',
 	shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
 	iconSize: [25, 41],
@@ -79,10 +79,8 @@ var blackIcon = new L.Icon({
 	shadowSize: [41, 41]
 });
 
-var map;
+let map;
 function create_map(la=24.7854333, ln=120.999092) {
-  console.log(la);
-  console.log(ln);
   map = L.map('map').setView([la, ln], 14);
 
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -92,30 +90,21 @@ function create_map(la=24.7854333, ln=120.999092) {
 }
 
 function add_marker(la, ln, icon=null, title=null, bind_title=null, bindTooltip=null, open_tooltip=false) {
-  var marker;
+  let marker;
   marker_options = new Object();
   if (icon) marker_options.icon = icon;
   if (title) marker_options.title = title;
   marker = L.marker([la, ln], marker_options);
   marker.addTo(map);
-  var tt;
+  let tt;
   if (bind_title) tt = marker.bindTooltip(bind_title, bindTooltip);
   if (open_tooltip) tt.openTooltip();
   return marker;
 }
 
-var pos_marker;
 function add_pos_marker(la, ln, icon) {
   pos_marker = L.marker([la, ln], {icon: icon});
   pos_marker.addTo(map);
-}
-
-function show_modal() {
-  
-}
-
-function markerOnClick(e) {
-  console.log(e);
 }
 
 function remove_store(store_code) {
@@ -134,11 +123,9 @@ function select_proper_icon(stock) {
   return icon;
 }
 
-//const dir_tag_text = 'direction in Google map.';//'在Google地圖中導航';
 const dir_tag_text = '在Google地圖中導航';
-var markers = {};
+let markers = {};
 function add_store_marker(store, store_stock_data) {
-  //console.log('in add store marker: ', store_stock_data);
   if (!store_stock_data) {
     store_stock_data = new Object();
     store_stock_data.stock = -1;
@@ -147,15 +134,7 @@ function add_store_marker(store, store_stock_data) {
   }
   stock = (store_stock_data.stock || -1);
   let icon = select_proper_icon(stock);
-  /*
-  if (stock > 58) icon = greenIcon;
-  else if (stock >= 39) icon = yellowIcon;
-  else if (stock >= 20) icon = goldIcon;
-  else if (stock > 0) icon = redIcon;
-  else icon = greyIcon;
-  */
-  //console.log(stock, icon);
-  var marker = L.marker([store.la, store.ln], {
+  let marker = L.marker([store.la, store.ln], {
     icon: icon,
     title: store.name
   }).addTo(map).on('click', ( () => update_marker(store.code) ));
@@ -176,12 +155,10 @@ function add_store_marker(store, store_stock_data) {
   return marker;
 }
 
-var tmp;
 function update_marker(store_code) {
-  console.log("update marker");
+  console.log("update marker", store_code2info[store_code].name);
   axios.get('https://nycu.cslife.cf:9999/get_stocks', {params: {stores_code: JSON.stringify([store_code])}})
     .then(function (response) {
-      tmp = response.data;//tmp
       store = store_code2info[store_code]
       store_stock_data = response.data[store.code];
       stock = (store_stock_data.stock || -1);
@@ -202,39 +179,36 @@ function update_marker(store_code) {
     });
 }
 
-var stores_stock_data;
-var tmp;
-var stores_code;
+let stores_stock_data;
+let stores_code;
 function pin_sites(data) {
   //all stores stock
   stores_code = data.map(x=>x.code);
   axios.get('https://nycu.cslife.cf:9999/get_stocks', {params: {stores_code: JSON.stringify(stores_code)}})
     .then(function (response) {
-      //document.querySelector('.bs_spinner_container').style.zIndex=99;
       document.querySelector('.bs_spinner_container').style.display="block";
       stores_stock_data = response.data;
       data.forEach(function(store) {
         add_store_marker(store, stores_stock_data[store.code] || {});
       });
-      //setTimeout(() => document.querySelector('.bs_spinner_container').style.zIndex=0);
       setTimeout(() => document.querySelector('.bs_spinner_container').style.display="none");
     });
 }
 
 function render_chart(data, label='快篩數量') {
-  var canvas = document.getElementById('chartCanvas');
-  var container = document.getElementById('chartContainer');
+  let canvas = document.getElementById('chartCanvas');
+  let container = document.getElementById('chartContainer');
   canvas.remove();
-  var new_canvas = document.createElement('canvas');
+  let new_canvas = document.createElement('canvas');
   new_canvas.setAttribute('id', 'chartCanvas');
   new_canvas.setAttribute('width', "400");
   new_canvas.setAttribute('height', "400");
   container.appendChild(new_canvas);
   canvas = new_canvas;
-  var ctx = canvas.getContext('2d');
+  let ctx = canvas.getContext('2d');
   data_arr = data.map(x=>parseInt(x[0], 10));
-  labels = data.map(x=>x[1]);
-  var chart_config = {
+  const labels = data.map(x=>x[1]);
+  let chart_config = {
     type: 'line',
     data: {
       labels: labels,
@@ -247,14 +221,14 @@ function render_chart(data, label='快篩數量') {
       }]
     }
   };
-  var chart = new Chart(ctx, chart_config);
+  let chart = new Chart(ctx, chart_config);
 }
 
+let last_access_history_code;
 interval_strings = ['7 days', '3 days', '1 day', '1 hour']
-var last_access_history_code = "";
 function show_history(store_code) {
-  document.querySelector('.bs_spinner_container').style.display="block";
   last_access_history_code = store_code;
+  document.querySelector('.bs_spinner_container').style.display="block";
   axios.get('https://nycu.cslife.cf:9999/get_interval_history', {params: {store_code: store_code, interval: interval_strings[ document.querySelector("#interval_select").selectedIndex ]}})
     .then(function(response) {
       console.log(`show history of ${store_code2info[store_code].name}`);
@@ -267,25 +241,23 @@ function show_history(store_code) {
 }
 
 function createTable(content, header=[], selector='body', row_attrs={}, indv_row_attrs={}) {
-  var table = document.createElement('table');
+  let table = document.createElement('table');
   table.setAttribute('class', 'bs_table');
-  var tableBody = document.createElement('tbody');
+  let tableBody = document.createElement('tbody');
   // create header
   if (header) {
-    var col_names = document.createElement('thead');
-    //col_names.setAttribute('id', 'header');
+    let col_names = document.createElement('thead');
     header.forEach(function(cellData) {
-      var cell = document.createElement('td');
+      let cell = document.createElement('td');
       cell.appendChild(document.createTextNode(cellData));
       col_names.appendChild(cell);
     });
     table.appendChild(col_names);
   }
   // create rows
-  //content.forEach(function(rowData) 
   for (let i = 0; i < content.length; i++){
-    var rowData = content[i];
-    var row = document.createElement('tr');
+    let rowData = content[i];
+    let row = document.createElement('tr');
     // set row attributes
     for (const[key, val] of Object.entries(row_attrs)) {
       row.setAttribute(key, val);
@@ -295,13 +267,12 @@ function createTable(content, header=[], selector='body', row_attrs={}, indv_row
       row.setAttribute(key, vals[i]);
     }
     rowData.forEach(function(cellData) {
-      var cell = document.createElement('td');
+      let cell = document.createElement('td');
       cell.appendChild(document.createTextNode(cellData));
       row.appendChild(cell);
     });
     tableBody.appendChild(row);
   }
-  //});
   table.appendChild(tableBody);
   document.querySelector(selector).appendChild(table);
   $('.bs_table').bootstrapTable();
@@ -313,13 +284,13 @@ function tr_onclick(store_code) {
   marker.openPopup();
 }
 
-var stores_info = {};
-var store_code2info = {};
-var real_dists = {};
-var real_d_content = [];
-var real_d_header;
-var real_d_selector;
-var real_d_indv_row_attrs;
+let stores_info = {};
+let store_code2info = {};
+let real_dists = {};
+let real_d_content = [];
+let real_d_header;
+let real_d_selector;
+let real_d_indv_row_attrs;
 function adj_process(response) {
   stores_info = response.data;
   stores_info.forEach(function(store) {
@@ -333,14 +304,13 @@ function adj_process(response) {
   selector = "#list_wrapper";
   
   content = [];//name, real_dist
-  let osrm_url = `https://nycu.cslife.cf:9999/get_real_dists`;
-  let store_coords = stores_info.map(s => [s.la, s.ln]);
+  const osrm_url = `https://nycu.cslife.cf:9999/get_real_dists`;
+  const store_coords = stores_info.map(s => [s.la, s.ln]);
   axios.get(osrm_url, {params: {s_la: cur_la, s_ln: cur_ln, dsts: JSON.stringify(store_coords)}})
     .then(function(response) {
       let data = response.data;
       for (let i = 0; i < store_coords.length; i++) {
         real_dists[stores_info[i].code] = data[i];
-        //console.log(stores_info[i].code, data[i]);
       }
       let zipped_content = [];
       stores_info.forEach(s=>{zipped_content.push([s.code, s.name, real_dists[s.code]])});
@@ -363,33 +333,32 @@ function flyBack() {
   map.flyTo([cur_la, cur_ln], 14);
 }
 
-var limit = 400;
-var hdist = 300;
+let limit = 400;
+let hdist = 300;
 function fetch_data(req_data) {
   let la = req_data.coords.latitude;
   let ln = req_data.coords.longitude;
-  //console.log(req_data);
   axios.get('https://nycu.cslife.cf:9999/adj_store_data', { params: {latitude: la, longitude: ln, limit: limit, hdist: hdist}})
     .then(adj_process)
     .catch(function (error) {console.log(error);});
 }
 
-var cur_la;
-var cur_ln;
-var cur_marker;
+let cur_la;
+let cur_ln;
+let cur_marker;
 function geo_callback(geo_data) {
   cur_la = geo_data.coords.latitude;
   cur_ln = geo_data.coords.longitude;
   create_map(cur_la, cur_ln);
   cur_marker = add_marker(cur_la, cur_ln, icon=blueIcon, title="現在位置", bind_title="現在位置", bindTooltip={permanent: true, direction: 'bottom'}, open_tooltip=true);
-  var data = fetch_data(geo_data);
+  let data = fetch_data(geo_data);
 }
 
 function change_cur_pos_marker(loc_data) {
   const card = loc_data.coords;
   cur_la = card.latitude;
   cur_ln = card.longitude;
-  var new_LatLng = new L.LatLng(cur_la, cur_ln);
+  const new_LatLng = new L.LatLng(cur_la, cur_ln);
   cur_marker.setLatLng(new_LatLng);
 }
 window.onload = navigator.geolocation.getCurrentPosition(geo_callback);
