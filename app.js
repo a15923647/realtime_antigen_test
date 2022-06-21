@@ -85,7 +85,7 @@ function create_map(la=24.7854333, ln=120.999092) {
 
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '<a href="https://www.openstreetmap.org/">OSM</a>',
-    maxZoom: 18,
+    maxZoom: 24,
   }).addTo(map);
 }
 
