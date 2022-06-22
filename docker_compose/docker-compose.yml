@@ -1,0 +1,45 @@
+---
+version: "2.1"
+services:
+  swag:
+    image: lscr.io/linuxserver/swag
+    container_name: swag
+    depends_on:
+      - realtime_antigen_backend
+    cap_add:
+      - NET_ADMIN
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Asia/Taipei
+      - URL=nycucs.ga
+      - SUBDOMAINS=www,
+      - VALIDATION=http
+      - EMAIL=<your email>
+      - ONLY_SUBDOMAINS=true #optional
+      - STAGING=false #optional
+    volumes:
+      - ./config:/config
+    ports:
+      - 443:443
+      - 80:80 #optional
+    restart: unless-stopped
+
+  realtime_antigen_backend:
+    build: .
+    image: local/realtime_antigen_backend
+    depends_on:
+      - osrm_backend
+    volumes:
+      - ./backend:/realtime_antigen_backend/
+    container_name: realtime_antigen_backend
+    restart: unless-stopped
+  
+  osrm_backend:
+    image: osrm/osrm-backend
+    volumes:
+      - ./osrm_backend:/data/
+    container_name: osrm_backend
+    command: /data/pre_run.sh
+    restart: unless-stopped
+# https://docs.linuxserver.io/general/swag

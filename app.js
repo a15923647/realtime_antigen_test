@@ -1,3 +1,5 @@
+let backend_loc = "www.nycucs.ga";
+let backend_port = 443;
 let blueIcon = new L.Icon({
 	iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png',
 	shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
@@ -157,7 +159,7 @@ function add_store_marker(store, store_stock_data) {
 
 function update_marker(store_code) {
   console.log("update marker", store_code2info[store_code].name);
-  axios.get('https://nycu.cslife.cf:9999/get_stocks', {params: {stores_code: JSON.stringify([store_code])}})
+  axios.get(`https://${backend_loc}:{backend_port}/get_stocks`, {params: {stores_code: JSON.stringify([store_code])}})
     .then(function (response) {
       store = store_code2info[store_code]
       store_stock_data = response.data[store.code];
@@ -184,7 +186,7 @@ let stores_code;
 function pin_sites(data) {
   //all stores stock
   stores_code = data.map(x=>x.code);
-  axios.get('https://nycu.cslife.cf:9999/get_stocks', {params: {stores_code: JSON.stringify(stores_code)}})
+  axios.get(`https://${backend_loc}:${backend_port}/get_stocks`, {params: {stores_code: JSON.stringify(stores_code)}})
     .then(function (response) {
       document.querySelector('.bs_spinner_container').style.display="block";
       stores_stock_data = response.data;
@@ -229,7 +231,7 @@ interval_strings = ['7 days', '3 days', '1 day', '1 hour']
 function show_history(store_code) {
   last_access_history_code = store_code;
   document.querySelector('.bs_spinner_container').style.display="block";
-  axios.get('https://nycu.cslife.cf:9999/get_interval_history', {params: {store_code: store_code, interval: interval_strings[ document.querySelector("#interval_select").selectedIndex ]}})
+  axios.get(`https://${backend_loc}:${backend_port}/get_interval_history`, {params: {store_code: store_code, interval: interval_strings[ document.querySelector("#interval_select").selectedIndex ]}})
     .then(function(response) {
       console.log(`show history of ${store_code2info[store_code].name}`);
       chart_data = response.data.map(x=>[x[0], x[1].replace(/^([0-9]{4})-/, x=>"")]);
@@ -304,7 +306,7 @@ function adj_process(response) {
   selector = "#list_wrapper";
   
   content = [];//name, real_dist
-  const osrm_url = `https://nycu.cslife.cf:9999/get_real_dists`;
+  const osrm_url = `https://${backend_loc}:${backend_port}/get_real_dists`;
   const store_coords = stores_info.map(s => [s.la, s.ln]);
   axios.get(osrm_url, {params: {s_la: cur_la, s_ln: cur_ln, dsts: JSON.stringify(store_coords)}})
     .then(function(response) {
@@ -338,7 +340,7 @@ let hdist = 300;
 function fetch_data(req_data) {
   let la = req_data.coords.latitude;
   let ln = req_data.coords.longitude;
-  axios.get('https://nycu.cslife.cf:9999/adj_store_data', { params: {latitude: la, longitude: ln, limit: limit, hdist: hdist}})
+  axios.get(`https://${backend_loc}:${backend_port}/adj_store_data`, { params: {latitude: la, longitude: ln, limit: limit, hdist: hdist}})
     .then(adj_process)
     .catch(function (error) {console.log(error);});
 }
