@@ -1,5 +1,5 @@
-let backend_loc = "www.nycucs.ga";
-let backend_port = 443;
+let backend_loc = "nycu.cslife.cf";
+let backend_port = 9999;
 let blueIcon = new L.Icon({
 	iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png',
 	shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
@@ -159,7 +159,7 @@ function add_store_marker(store, store_stock_data) {
 
 function update_marker(store_code) {
   console.log("update marker", store_code2info[store_code].name);
-  axios.get(`https://${backend_loc}:{backend_port}/get_stocks`, {params: {stores_code: JSON.stringify([store_code])}})
+  axios.get(`https://${backend_loc}:${backend_port}/get_stocks`, {params: {stores_code: JSON.stringify([store_code])}})
     .then(function (response) {
       store = store_code2info[store_code]
       store_stock_data = response.data[store.code];
