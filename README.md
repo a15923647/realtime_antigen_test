@@ -5,3 +5,6 @@
 1. 實際路程計算
 2. 快篩數量變化趨勢圖
 3. 動態更新 (實際距離外)
+# 安裝
+1. Replace host location and port defined in app.js to your domain and port number.
+2. Please refer README.md in docker_compose for futhur installation.
