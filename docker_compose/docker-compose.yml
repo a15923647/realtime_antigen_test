@@ -17,7 +17,7 @@ services:
       - SUBDOMAINS=www,
       - VALIDATION=http
       - EMAIL=<your email>
-      - ONLY_SUBDOMAINS=true #optional
+      - ONLY_SUBDOMAINS=false #optional
       - STAGING=false #optional
     volumes:
       - ./config:/config
