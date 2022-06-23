@@ -282,6 +282,7 @@ function createTable(content, header=[], selector='body', row_attrs={}, indv_row
 
 function tr_onclick(store_code) {
   let marker = markers[store_code];
+  update_marker(store_code);
   map.flyTo(marker.getLatLng(), 17);
   marker.openPopup();
 }
