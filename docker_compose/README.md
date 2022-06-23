@@ -1,5 +1,9 @@
 # install
 ## setup api domain
+First, grant executable permission to osrm_backend/pre_run.sh
+```command
+chmod +x osrm_backend/pre_run.sh
+```
 modify files below
 * docker-compose.yml
   Change URL and SUBDOMAIN, environment variables of swag, to your URL and subdomain respectly.

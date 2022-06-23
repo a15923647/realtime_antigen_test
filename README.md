@@ -7,4 +7,9 @@
 3. 動態更新 (實際距離外)
 # 安裝
 1. Replace host location and port defined in app.js with your domain and port number.
-2. Please refer README.md in docker_compose for futhur installation.
+2. install docker and docker compose
+   ```command
+   $ sudo chmod +x install_docker.sh
+   $ sudo ./install_docker.sh
+   ```
+3. Please refer README.md in docker_compose for futhur installation.
