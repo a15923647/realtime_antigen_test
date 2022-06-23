@@ -197,14 +197,14 @@ function pin_sites(data) {
     });
 }
 
-function render_chart(data, label='快篩數量') {
-  let canvas = document.getElementById('chartCanvas');
-  let container = document.getElementById('chartContainer');
+function render_chart(data, label='快篩數量', canvas_id='chartCanvas', container_id='chartContainer') {
+  let canvas = document.getElementById(canvas_id);
+  let container = document.getElementById(container_id);
   canvas.remove();
   let new_canvas = document.createElement('canvas');
-  new_canvas.setAttribute('id', 'chartCanvas');
-  new_canvas.setAttribute('width', "400");
-  new_canvas.setAttribute('height', "400");
+  new_canvas.setAttribute('id', canvas_id);
+  //new_canvas.setAttribute('width', "400");
+  //new_canvas.setAttribute('height', "400");
   container.appendChild(new_canvas);
   canvas = new_canvas;
   let ctx = canvas.getContext('2d');
@@ -340,9 +340,17 @@ let hdist = 300;
 function fetch_data(req_data) {
   let la = req_data.coords.latitude;
   let ln = req_data.coords.longitude;
-  axios.get(`https://${backend_loc}:${backend_port}/adj_store_data`, { params: {latitude: la, longitude: ln, limit: limit, hdist: hdist}})
+  return axios.get(`https://${backend_loc}:${backend_port}/adj_store_data`, { params: {latitude: la, longitude: ln, limit: limit, hdist: hdist}})
     .then(adj_process)
     .catch(function (error) {console.log(error);});
+}
+
+function create_date_chart() {
+  return axios.get(`https://${backend_loc}:${backend_port}/date_summary`)
+    .then(function(response) {
+      chart_data = response.data.map(x=>[x[0], x[1].replace(/^([0-9]{4})-/, x=>"")]);
+      render_chart(chart_data, label='全台快篩餘量', canvas_id='date_sum_chart', container_id='date_summary_container');
+    });
 }
 
 let cur_la;
@@ -353,7 +361,9 @@ function geo_callback(geo_data) {
   cur_ln = geo_data.coords.longitude;
   create_map(cur_la, cur_ln);
   cur_marker = add_marker(cur_la, cur_ln, icon=blueIcon, title="現在位置", bind_title="現在位置", bindTooltip={permanent: true, direction: 'bottom'}, open_tooltip=true);
-  let data = fetch_data(geo_data);
+  let fetch_promise = fetch_data(geo_data);
+  let date_sum_promise = create_date_chart();
+
 }
 
 function change_cur_pos_marker(loc_data) {

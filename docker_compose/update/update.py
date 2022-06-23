@@ -37,7 +37,8 @@ table_indices = {
     'code_name' : [CODE],
     'code_tele' : [CODE],
     'new_states' : [TIME, CODE],
-    'store_latest' : [CODE]
+    'store_latest' : [CODE],
+    'date_ava' : ['date']
 }
 
 fks = {
@@ -59,7 +60,19 @@ pks = {
     'code_name' : [CODE],
     'code_tele' : [CODE],
     'new_states' : [TIME, CODE],
-    'store_latest' : [CODE]
+    'store_latest' : [CODE],
+    'date_ava' : ['date']
+}
+
+fetch_table_cols = {
+    'code_addr': [CODE, ADDR],
+    'code_col' : [CODE],
+    'code_la' : [CODE, LA],
+    'code_ln' : [CODE, LN],
+    'code_name' : [CODE, NAME],
+    'code_tele': [CODE, TELE],
+    'new_states' : [CODE, BRAND, STOCK, TIME, MEMO],
+    'states' : [CODE, BRAND, STOCK, TIME, MEMO],
 }
 
 table_cols = {
@@ -71,7 +84,8 @@ table_cols = {
     'code_tele': [CODE, TELE],
     'new_states' : [CODE, BRAND, STOCK, TIME, MEMO],
     'states' : [CODE, BRAND, STOCK, TIME, MEMO],
-    'store_latest' : [CODE, BRAND, STOCK, TIME, MEMO]
+    'store_latest' : [CODE, BRAND, STOCK, TIME, MEMO],
+    'date_ava' : ['total', 'date']
 }
 
 def table_exists(engine, table_name):
@@ -83,7 +97,7 @@ def fetch_data():
     r = requests.get(data_url)
     data_io = StringIO(r.text)
     res = dict()
-    for table_name, cols in table_cols.items():
+    for table_name, cols in fetch_table_cols.items():
         data_io.seek(0)
         df = pd.read_csv(data_io, sep=',', usecols=cols)
         if TIME in cols:
@@ -98,8 +112,14 @@ def double2single_quote(s):
     return s
 
 
-def create_table(engine, table_name, df):
-    df.iloc[:1, :].to_sql(table_name, engine, if_exists='append', index=False)
+def create_table(engine, table_name, src):
+    if isinstance(src, pd.DataFrame):
+        src.iloc[:1, :].to_sql(table_name, engine, if_exists='append', index=False)
+    elif isinstance(src, str):
+        run_queries(engine, [src], f"create table {table_name} by SQL statement")
+    else:
+        return
+
     task_q = list()
     if table_name in pks.keys():
         task_q.append(f"ALTER TABLE {table_name} ADD PRIMARY KEY({', '.join(pks[table_name])})")
@@ -119,6 +139,33 @@ def gen_insert_non_exists_q(engine, table_name, df, conflict_cond=[CODE]):
     INSERT INTO {table_name} ({', '.join(table_cols[table_name])}) VALUES {', '.join(vals_s)} ON CONFLICT ({conflict_attrs_s}) DO NOTHING;
     """
     return q
+
+def cross_day(engine, latest_update_table='date_ava', time_col='date'):
+    if not table_exists(engine, "date_ava"):
+        create_q = f"""
+        CREATE TABLE date_ava AS (
+          WITH d as (SELECT {TIME}, {STOCK}
+                     FROM new_states 
+                     WHERE EXTRACT(hour FROM {TIME}) = 0
+                       AND EXTRACT(minute FROM {TIME}) = 0
+                       AND EXTRACT(second FROM {TIME}) < 30)
+          SELECT sum({STOCK}) as total, min({TIME})::date as date
+          FROM d
+          GROUP BY EXTRACT(day FROM {TIME})
+          )
+        """
+        create_table(engine, "date_ava", create_q)
+    q = f"SELECT max({time_col})::date < NOW()::date FROM {latest_update_table}"
+    res = run_queries(engine, [q], "check cross day")[0][0]
+    return True if res or res is None else False
+
+def daily_update(engine):
+    task_q = list()
+    task_q.append(f"""INSERT INTO date_ava ({', '.join(table_cols['date_ava'])}) 
+                      SELECT SUM({STOCK}) as total, MAX({TIME})::date as date
+                      FROM store_latest""")
+    print(task_q)
+    run_queries(engine, task_q, "update date_ava")
 
 def update(engine, table_names=["states", "new_states"], latest_table="store_latest"):
     start_time = time.time()
@@ -148,7 +195,8 @@ def update(engine, table_names=["states", "new_states"], latest_table="store_lat
     q = gen_insert_non_exists_q(engine, "new_states", df, conflict_cond=[CODE, TIME])
     run_queries(engine, [q], f"insert states into new_states")
 
-
+    if cross_day(engine):
+        daily_update(engine)
     logger.info(f"update complete @{datetime.datetime.now()}, cost {time.time()-start_time} seconds.")
 
 

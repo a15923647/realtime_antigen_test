@@ -30,6 +30,16 @@
         border-radius: 4px;
         z-index: 2;
       }
+      #date_summary_container {
+        display: block;
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        background: #fff;
+        box-shadow: 0 1px 5px rgb(0 0 0 / 65%);
+        border-radius: 4px;
+        z-index: 2;
+      }
       #fly_back_btn {
         display: block;
         position: absolute;
@@ -80,6 +90,9 @@
   <script src="app.js"></script>
   <div id="list_wrapper">
 
+  </div>
+  <div id="date_summary_container">
+    <canvas id="date_sum_chart"></canvas>
   </div>
   <button onclick="flyBack();" id="fly_back_btn">回到原位</button>
   <div class="modal fade bt_modal" id="historyModal">

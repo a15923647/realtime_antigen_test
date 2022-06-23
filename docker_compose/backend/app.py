@@ -177,6 +177,13 @@ def get_real_dists():
     ret_response = Response(json.dumps(res))
     ret_response.headers['Access-Control-Allow-Origin'] = "*"
     return ret_response
+
+@app.route('/date_summary', methods=['GET'])
+def date_summary():
+    q = "SELECT * FROM date_ava"
+    ret_response = Response(json.dumps(run_query(q, conn), default=str))
+    ret_response.headers['Access-Control-Allow-Origin'] = "*"
+    return ret_response
     
 @app.route('/adj_store_data', methods=['GET'])
 def adj_store_data():
