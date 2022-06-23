@@ -119,7 +119,6 @@ def create_table(engine, table_name, src):
         run_queries(engine, [src], f"create table {table_name} by SQL statement")
     else:
         return
-
     task_q = list()
     if table_name in pks.keys():
         task_q.append(f"ALTER TABLE {table_name} ADD PRIMARY KEY({', '.join(pks[table_name])})")

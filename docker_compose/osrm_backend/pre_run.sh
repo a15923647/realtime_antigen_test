@@ -1,6 +1,6 @@
 #!/bin/sh
 cd /data/
-if ![ -f "taiwan-latest.osm.pbf" ]; then
+if ! [ -f "taiwan-latest.osm.pbf" ]; then
   apt-get update
   apt-get install -y wget
   wget https://download.geofabrik.de/asia/taiwan-latest.osm.pbf && \

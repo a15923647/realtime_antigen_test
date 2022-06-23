@@ -6,6 +6,7 @@ services:
     container_name: swag
     depends_on:
       - realtime_antigen_backend
+      - update_realtime_antigen
     cap_add:
       - NET_ADMIN
     environment:
@@ -41,5 +42,12 @@ services:
       - ./osrm_backend:/data/
     container_name: osrm_backend
     command: /data/pre_run.sh
+    restart: unless-stopped
+  update_realtime_antigen:
+    build: ./update/
+    image: python:3.8.13-alpine
+    volumes:
+      - ./update:/update
+    container_name: update_realtime_antigen
     restart: unless-stopped
 # https://docs.linuxserver.io/general/swag
