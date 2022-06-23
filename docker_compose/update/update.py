@@ -154,7 +154,7 @@ def cross_day(engine, latest_update_table='date_ava', time_col='date'):
           )
         """
         create_table(engine, "date_ava", create_q)
-    q = f"SELECT max({time_col})::date < NOW()::date FROM {latest_update_table}"
+    q = f"SET timezone TO 'Asia/Taipei'; SELECT max({time_col})::date < NOW()::date FROM {latest_update_table}"
     res = run_queries(engine, [q], "check cross day")[0][0]
     return True if res or res is None else False
 
