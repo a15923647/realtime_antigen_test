@@ -160,7 +160,7 @@ def get_real_dists():
     dsts = json.loads(request.args.get('dsts'))
     def chk(inp):
         return len(inp) == 2 and re.match('^[0-9]+(\.[0-9]+)?$', str(inp[0])) and re.match('^[0-9]+(\.[0-9]+)?$', str(inp[1]))
-    if not isinstance(dsts, list) or not all_meet(dsts, chk):
+    if not isinstance(dsts, list) or not all_meet(dsts, chk) or not all_meet([s_la, s_ln], lambda x: re.match('^[0-9]+.?[0-9]*$', x)):
         ret_response = Response("invalid destinations input format", status=403)
         ret_response.headers['Access-Control-Allow-Origin'] = "*"
         return ret_response
@@ -189,8 +189,12 @@ def date_summary():
 def adj_store_data():
     cur_la = request.args.get('latitude')
     cur_ln = request.args.get('longitude')
-    hdist = request.args.get('hdist', 3)
-    limit = min(int(request.args.get('limit', '20')), 5000);
+    hdist = int(request.args.get('hdist', '3'))
+    limit = min(int(request.args.get('limit', '20')), 5000)
+    if not all_meet([cur_la, cur_ln], lambda x: re.match('^[0-9]+.?[0-9]*$', x)):
+        ret_response = Response("invalid position format", status=403)
+        ret_response.headers['Access-Control-Allow-Origin'] = "*"
+        return ret_response
     print(cur_la, cur_ln, hdist, limit)
     nearby_q = gen_nearby_query(cur_la, cur_ln, hdist, limit)
     print(nearby_q)
