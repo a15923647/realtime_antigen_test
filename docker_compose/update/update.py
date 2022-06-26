@@ -102,6 +102,8 @@ def fetch_data():
         df = pd.read_csv(data_io, sep=',', usecols=cols)
         if TIME in cols:
             df[TIME] = pd.to_datetime(df[TIME], format="%Y/%m/%d %H:%M:%S") # %Y/%m/%d %H:%M:%S
+        if CODE in cols:
+            df = df.astype({CODE: 'object'})
         res[table_name] = df
     data_io.close()
     return res
