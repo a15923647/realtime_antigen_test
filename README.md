@@ -1,5 +1,6 @@
 # 台灣實名制快篩地圖
 NYCU DB final project
+# 更: 因AWS課程關閉，資料庫已死
 ## [地圖連結](https://a15923647.github.io/realtime_antigen_test/)
 每30秒更新一次的實名制快篩地圖，列出最近的400個購買點
 # 功能
